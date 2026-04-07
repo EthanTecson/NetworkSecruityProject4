@@ -7,14 +7,31 @@ class Rule:
         self.dport = dport
 
     def matches(self, packet):
-        # TODO: implement matching logic
-        return False
+        
+        if self.protocol != packet["protocol"]: 
+            return False 
+        if self.src != "ANY" and self.src != packet["src_ip"]:
+            return False
+        if self.dport != "ANY" and self.dport != packet["dst_port"]:
+            return False
+        if self.dst != "ANY" and self.dst != packet["dst_ip"]:
+            return False
+
+        return True 
 
 
+"""
+This is what oversees the entire rule table and usees matches() to actaully check if each 
+each row of the table is correct
+"""
 class RuleEngine:
     def __init__(self, rules):
         self.rules = rules
 
     def match(self, packet):
-        # TODO: implement matching logic
-        return ""
+
+        for rule in self.rules:
+            if rule.matches(packet):
+                return rule.action
+
+        return "DROP"
