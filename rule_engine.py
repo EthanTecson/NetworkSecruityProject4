@@ -12,9 +12,9 @@ class Rule:
             return False 
         if self.src != "ANY" and self.src != packet["src_ip"]:
             return False
-        if self.dport != "ANY" and self.dport != packet["dst_port"]:
-            return False
         if self.dst != "ANY" and self.dst != packet["dst_ip"]:
+            return False
+        if self.dport != "ANY" and self.dport != packet["dst_port"]:
             return False
 
         return True 
