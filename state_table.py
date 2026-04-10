@@ -12,8 +12,24 @@ class StateTable:
 
     def is_established(self, packet):
         # TODO: check forward/reverse flow
-        return False
+        forward = (
+            packet["src_ip"],
+            packet["src_port"],
+            packet["dst_ip"],
+            packet["dst_port"],
+        )
+
+        backward = (
+            packet["dst_ip"],
+            packet["dst_port"],
+            packet["src_ip"],
+            packet["src_port"],
+        )
+
+        return forward in self.connections or backward in self.connections
+
 
     def update(self, packet, action):
         # TODO: implement TCP state tracking
-        pass
+        if action == "ALLOW":
+            self.connections.add(self._key(packet))
