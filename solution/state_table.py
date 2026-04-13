@@ -64,7 +64,7 @@ class StateTable:
             return True
         return False
     
-    def update(self, packet, action):
+    def update(self, packet):
         # TODO: implement TCP state tracking
         if packet.get("protocol") != "TCP":
             return
@@ -92,8 +92,3 @@ class StateTable:
             if self.connections.get(backward) in {"SYN_SENT", "SYN_RECEIVED"}:
                 self.connections[backward] = "ESTABLISHED"
             return
-
-        # Close connection
-        if "FIN" in flags or "RST" in flags:
-            self.connections.pop(forward, None)
-            self.connections.pop(backward, None)

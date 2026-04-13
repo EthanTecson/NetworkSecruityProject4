@@ -13,21 +13,22 @@ class Firewall:
         self.logs = []
 
     def process_packet(self, packet):
+        #if the connection is already established, let it through
         if self.state_table.is_established(packet):
             return "ALLOW"
 
-        if self.state_table.is_suspicious(packet):
-            self.logs.append({"packet": packet, "reason": "Suspicious TCP behavior"})
-            logging.info({"packet": packet, "reason": "Suspicious TCP behavior"})
-            return "LOG"
-
         action = self.rule_engine.match(packet)
 
-        if action == "LOG":
-            self.logs.append({"packet": packet, "reason": "Matched LOG rule"})
-            logging.info({"packet": packet, "reason": "Matched LOG rule"})
+        #log suspicious packets
+        if self.state_table.is_suspicious(packet):
+            self.logs.append({"packet": packet, "reason": "Suspicious TCP behavior", "action": action})
+            logging.info({"packet": packet, "reason": "Suspicious TCP behavior", "action": action})
+            #return "LOG" #don't log because the rule set doesn't say log suspicious packets
+        
+        if action == "DROP": #dropped packets should never make it to the state table
+            return action
 
-        if packet["protocol"] == "TCP":
-            self.state_table.update(packet, action)
+        if packet["protocol"] == "TCP": #if it's a TCP connection, store it in the state table
+            self.state_table.update(packet)
 
         return action
